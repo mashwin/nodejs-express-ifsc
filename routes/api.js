@@ -3,7 +3,7 @@ const router = express.Router();
 const Bank = require('../models/bank');
 
 /**
- * method to retrieve all distinct banks
+ * retrieve distinct banks
  */
 router.get('/banks', function (req, res) {
 
@@ -13,9 +13,8 @@ router.get('/banks', function (req, res) {
             const banks = [];
             response.map((res) => {
                 const obj = {};
-                obj.key = res;
                 obj.value = res;
-                obj.text = res;
+                obj.label = res;
                 banks.push(obj);
             })
 
@@ -27,7 +26,7 @@ router.get('/banks', function (req, res) {
 })
 
 /**
- * method to retrieve states to which bank
+ * retrieve states to which the bank
  * belongs
  */
 router.post('/states', function (req, res) {
@@ -37,23 +36,22 @@ router.post('/states', function (req, res) {
         })
         .then((response) => {
 
-			const items = [];
-			response.map((state) => {
-				if (items.indexOf(state['STATE']) == -1) {
-					items.push(state['STATE']);
-				}
-			});
-			
-			let states = [];
-			items.map((item) => {
-				const obj = {};
-                obj.key = item;
+            const items = [];
+            response.map((state) => {
+                if (items.indexOf(state['STATE']) == -1) {
+                    items.push(state['STATE']);
+                }
+            });
+
+            let states = [];
+            items.map((item) => {
+                const obj = {};
                 obj.value = item;
-                obj.text = item;
-				states.push(obj);
-			});
-			
-            return res.send({ states });
+                obj.label = item;
+                states.push(obj);
+            });
+
+            return res.status(200).send({ states });
         })
         .catch((error) => {
             console.log(error);
@@ -61,8 +59,7 @@ router.post('/states', function (req, res) {
 })
 
 /**
- * method to retrieve cities to which bank
- * belongs
+ * retrieve cities
  */
 router.post('/cities', function (req, res) {
     Bank.find(
@@ -71,24 +68,57 @@ router.post('/cities', function (req, res) {
             STATE: req.body.stateName
         })
         .then((response) => {
-			
-			const items = [];
-			response.map((city) => {
-				if (items.indexOf(city['CITY']) == -1) {
-					items.push(city['CITY']);
-				}
-			});
-			
-			let cities = [];
-			items.map((item) => {
-				const obj = {};
-                obj.key = item;
+
+            const items = [];
+            response.map((city) => {
+                if (items.indexOf(city['CITY']) == -1) {
+                    items.push(city['CITY']);
+                }
+            });
+
+            let cities = [];
+            items.map((item) => {
+                const obj = {};
                 obj.value = item;
-                obj.text = item;
-				cities.push(obj);
-			});
-			
-            return res.send({ cities });
+                obj.label = item;
+                cities.push(obj);
+            });
+
+            return res.status(200).send({ cities });
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+})
+
+/**
+ * retrieve branches
+ */
+router.post('/branches', function (req, res) {
+    Bank.find(
+        {
+            BANK: req.body.bankName,
+            STATE: req.body.stateName,
+            CITY: req.body.cityName
+        })
+        .then((response) => {
+
+            const items = [];
+            response.map((branch) => {
+                if (items.indexOf(branch['BRANCH']) == -1) {
+                    items.push(branch['BRANCH']);
+                }
+            });
+
+            let branches = [];
+            items.map((item) => {
+                const obj = {};
+                obj.value = item;
+                obj.label = item;
+                branches.push(obj);
+            });
+
+            return res.status(200).send({ branches });
         })
         .catch((error) => {
             console.log(error);
@@ -100,18 +130,19 @@ router.post('/cities', function (req, res) {
  * search criteria
  */
 router.post('/banks', function (req, res) {
-	
+
     Bank.find(
         {
-			$and: 
-			[
-				{'BANK': req.body.bankName},
-				{'STATE': req.body.stateName},
-				{'CITY': req.body.cityName}				
-			]
+            $and:
+                [
+                    { 'BANK': req.body.bankName },
+                    { 'STATE': req.body.stateName },
+                    { 'CITY': req.body.cityName },
+                    { 'BRANCH': req.body.branchName }
+                ]
         })
         .then((response) => {
-            return res.send({ response });
+            return res.status(200).send({ response });
         })
         .catch((error) => {
             console.log(error);
